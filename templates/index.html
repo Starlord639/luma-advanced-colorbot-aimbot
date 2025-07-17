@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luma - Advanced ColorBot Aimbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #1a1d29;
+            color: #ffffff;
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            color: white;
+        }
+        .tab-inactive {
+            background: #2d3748;
+            color: #a0aec0;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4a5568;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #4a5568;
+            outline: none;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            cursor: pointer;
+        }
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            cursor: pointer;
+            border: none;
+        }
+        .card {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #4a5568;
+        }
+        .dropdown {
+            background: #4a5568;
+            border: 1px solid #718096;
+            border-radius: 8px;
+            color: white;
+            padding: 8px 12px;
+            width: 100%;
+        }
+        .status-active {
+            color: #48bb78;
+        }
+        .status-inactive {
+            color: #f56565;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-secondary {
+            background: #4a5568;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #718096;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+        }
+        .collapsible:before {
+            content: '▼';
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+        .collapsible.collapsed:before {
+            transform: rotate(-90deg);
+        }
+        .collapsible-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Luma</h1>
+            <p class="text-gray-400">Advanced ColorBot Aimbot</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex space-x-2 mb-6">
+            <button id="tab-aim" class="tab-active px-6 py-3 rounded-lg font-medium transition-all" onclick="switchTab('aim')">AIM</button>
+            <button id="tab-esp" class="tab-inactive px-6 py-3 rounded-lg font-medium transition-all" onclick="switchTab('esp')">ESP</button>
+            <button id="tab-fov" class="tab-inactive px-6 py-3 rounded-lg font-medium transition-all" onclick="switchTab('fov')">FOV</button>
+        </div>
+
+        <!-- AIM Tab -->
+        <div id="content-aim" class="tab-content">
+            <!-- Enable Colorbot -->
+            <div class="card">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Enable Colorbot</h3>
+                        <p class="text-gray-400 text-sm">Toggle the main Colorbot functionality</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enable-colorbot">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Basic Settings -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-2">Basic Settings</h3>
+                <p class="text-gray-400 text-sm mb-4">Configure primary aiming parameters</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Target Priority</label>
+                        <select class="dropdown" id="target-priority">
+                            <option value="closest">Closest</option>
+                            <option value="largest">Largest</option>
+                            <option value="center">Center Screen</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Smoothness: <span id="smoothness-value">0.50</span></label>
+                        <input type="range" class="range-slider w-full" id="smoothness" min="0.1" max="2.0" step="0.1" value="0.5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-2">Advanced Settings</h3>
+                <p class="text-gray-400 text-sm mb-4">Fine-tune advanced aimbot features</p>
+
+                <!-- Recoil Control -->
+                <div class="mb-6">
+                    <div class="collapsible mb-3" onclick="toggleCollapsible('recoil-content')">
+                        <span class="text-lg font-medium">Recoil Control</span>
+                    </div>
+                    <div id="recoil-content" class="collapsible-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <span>Enable Recoil Control</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="enable-recoil">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Keybind</label>
+                            <input type="text" class="dropdown" id="recoil-keybind" value="Left Click" readonly>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Down: <span id="recoil-down-value">0</span></label>
+                                <input type="range" class="range-slider w-full" id="recoil-down" min="0" max="100" value="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Up: <span id="recoil-up-value">0</span></label>
+                                <input type="range" class="range-slider w-full" id="recoil-up" min="0" max="100" value="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Left: <span id="recoil-left-value">0</span></label>
+                                <input type="range" class="range-slider w-full" id="recoil-left" min="0" max="100" value="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Right: <span id="recoil-right-value">0</span></label>
+                                <input type="range" class="range-slider w-full" id="recoil-right" min="0" max="100" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prediction -->
+                <div class="mb-6">
+                    <div class="collapsible mb-3" onclick="toggleCollapsible('prediction-content')">
+                        <span class="text-lg font-medium">Prediction</span>
+                    </div>
+                    <div id="prediction-content" class="collapsible-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <span>Enable Prediction</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="enable-prediction">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Prediction Type</label>
+                            <select class="dropdown" id="prediction-type">
+                                <option value="linear">Linear</option>
+                                <option value="quadratic">Quadratic</option>
+                                <option value="cubic">Cubic</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Humanization -->
+                <div class="mb-6">
+                    <div class="collapsible mb-3" onclick="toggleCollapsible('humanization-content')">
+                        <span class="text-lg font-medium">Humanization</span>
+                    </div>
+                    <div id="humanization-content" class="collapsible-content">
+                        <div class="flex justify-between items-center mb-4">
+                            <span>Enable Humanization</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="enable-humanization">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Humanization Type</label>
+                            <select class="dropdown" id="humanization-type">
+                                <option value="natural">Natural</option>
+                                <option value="smooth">Smooth</option>
+                                <option value="aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESP Tab -->
+        <div id="content-esp" class="tab-content hidden">
+            <!-- Enable ESP -->
+            <div class="card">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Enable ESP</h3>
+                        <p class="text-gray-400 text-sm">Toggle the main ESP functionality</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enable-esp">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ESP Settings -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-2">ESP Settings</h3>
+                <p class="text-gray-400 text-sm mb-4">Visual overlay and information display</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Box Style</label>
+                        <select class="dropdown" id="box-style">
+                            <option value="2d">2D Box</option>
+                            <option value="3d">3D Box</option>
+                            <option value="corner">Corner Box</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Color Scheme</label>
+                        <select class="dropdown" id="color-scheme">
+                            <option value="rainbow">Rainbow</option>
+                            <option value="team">Team Based</option>
+                            <option value="distance">Distance Based</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="flex justify-between items-center">
+                        <span>Tracers</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enable-tracers">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Health</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enable-health">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOV Tab -->
+        <div id="content-fov" class="tab-content hidden">
+            <!-- Enable FOV -->
+            <div class="card">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Enable FOV</h3>
+                        <p class="text-gray-400 text-sm">Toggle the FOV indicator</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enable-fov">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- FOV Settings -->
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-2">FOV Settings</h3>
+                <p class="text-gray-400 text-sm mb-4">Field of view indicator configuration</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">FOV Shape</label>
+                        <select class="dropdown" id="fov-shape">
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="crosshair">Crosshair</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">FOV Size: <span id="fov-size-value">100</span></label>
+                        <input type="range" class="range-slider w-full" id="fov-size" min="50" max="300" value="100">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="card mt-8">
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="text-sm">System Active</span>
+                    </div>
+                    <div class="text-sm">FPS: <span id="fps-counter">60</span></div>
+                    <div class="text-sm">Detections: <span id="detection-counter">0</span></div>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="btn-secondary" onclick="saveConfig()">Save Config</button>
+                    <button class="btn-secondary" onclick="loadConfig()">Load Config</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.className = tab.className.replace('tab-active', 'tab-inactive');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Add active class to selected tab
+            document.getElementById(`tab-${tabName}`).className = 
+                document.getElementById(`tab-${tabName}`).className.replace('tab-inactive', 'tab-active');
+        }
+
+        // Collapsible functionality
+        function toggleCollapsible(contentId) {
+            const content = document.getElementById(contentId);
+            const trigger = content.previousElementSibling;
+            
+            content.classList.toggle('collapsed');
+            trigger.classList.toggle('collapsed');
+        }
+
+        // Range slider value updates
+        document.getElementById('smoothness').addEventListener('input', function() {
+            document.getElementById('smoothness-value').textContent = this.value;
+        });
+
+        document.getElementById('recoil-down').addEventListener('input', function() {
+            document.getElementById('recoil-down-value').textContent = this.value;
+        });
+
+        document.getElementById('recoil-up').addEventListener('input', function() {
+            document.getElementById('recoil-up-value').textContent = this.value;
+        });
+
+        document.getElementById('recoil-left').addEventListener('input', function() {
+            document.getElementById('recoil-left-value').textContent = this.value;
+        });
+
+        document.getElementById('recoil-right').addEventListener('input', function() {
+            document.getElementById('recoil-right-value').textContent = this.value;
+        });
+
+        document.getElementById('fov-size').addEventListener('input', function() {
+            document.getElementById('fov-size-value').textContent = this.value;
+        });
+
+        // API Communication
+        let config = {};
+
+        async function loadStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                // Update UI with current status
+                document.getElementById('enable-colorbot').checked = data.running && !data.paused;
+                config = data.config;
+                
+                // Update status indicators
+                document.getElementById('fps-counter').textContent = data.fps;
+                document.getElementById('detection-counter').textContent = data.detections;
+                
+                // Update all form fields with config values
+                updateUIFromConfig();
+                
+            } catch (error) {
+                console.error('Error loading status:', error);
+            }
+        }
+
+        function updateUIFromConfig() {
+            if (!config) return;
+            
+            // Basic settings
+            document.getElementById('smoothness').value = config.smoothness || 0.5;
+            document.getElementById('smoothness-value').textContent = config.smoothness || 0.5;
+            document.getElementById('target-priority').value = config.target_priority || 'closest';
+            
+            // Recoil control
+            document.getElementById('enable-recoil').checked = config.recoil_control?.enabled || false;
+            document.getElementById('recoil-down').value = config.recoil_control?.down || 0;
+            document.getElementById('recoil-down-value').textContent = config.recoil_control?.down || 0;
+            document.getElementById('recoil-up').value = config.recoil_control?.up || 0;
+            document.getElementById('recoil-up-value').textContent = config.recoil_control?.up || 0;
+            document.getElementById('recoil-left').value = config.recoil_control?.left || 0;
+            document.getElementById('recoil-left-value').textContent = config.recoil_control?.left || 0;
+            document.getElementById('recoil-right').value = config.recoil_control?.right || 0;
+            document.getElementById('recoil-right-value').textContent = config.recoil_control?.right || 0;
+            
+            // Prediction
+            document.getElementById('enable-prediction').checked = config.prediction?.enabled || false;
+            document.getElementById('prediction-type').value = config.prediction?.type || 'linear';
+            
+            // Humanization
+            document.getElementById('enable-humanization').checked = config.humanization?.enabled || false;
+            document.getElementById('humanization-type').value = config.humanization?.type || 'natural';
+            
+            // ESP
+            document.getElementById('enable-esp').checked = config.esp?.enabled || false;
+            document.getElementById('box-style').value = config.esp?.box_style || '2d';
+            document.getElementById('color-scheme').value = config.esp?.color_scheme || 'rainbow';
+            document.getElementById('enable-tracers').checked = config.esp?.tracers || false;
+            document.getElementById('enable-health').checked = config.esp?.health || false;
+            
+            // FOV
+            document.getElementById('enable-fov').checked = config.fov?.enabled || false;
+            document.getElementById('fov-shape').value = config.fov?.shape || 'circle';
+            document.getElementById('fov-size').value = config.fov?.size || 100;
+            document.getElementById('fov-size-value').textContent = config.fov?.size || 100;
+        }
+
+        function collectConfigFromUI() {
+            return {
+                smoothness: parseFloat(document.getElementById('smoothness').value),
+                target_priority: document.getElementById('target-priority').value,
+                recoil_control: {
+                    enabled: document.getElementById('enable-recoil').checked,
+                    down: parseInt(document.getElementById('recoil-down').value),
+                    up: parseInt(document.getElementById('recoil-up').value),
+                    left: parseInt(document.getElementById('recoil-left').value),
+                    right: parseInt(document.getElementById('recoil-right').value)
+                },
+                prediction: {
+                    enabled: document.getElementById('enable-prediction').checked,
+                    type: document.getElementById('prediction-type').value
+                },
+                humanization: {
+                    enabled: document.getElementById('enable-humanization').checked,
+                    type: document.getElementById('humanization-type').value
+                },
+                esp: {
+                    enabled: document.getElementById('enable-esp').checked,
+                    box_style: document.getElementById('box-style').value,
+                    color_scheme: document.getElementById('color-scheme').value,
+                    tracers: document.getElementById('enable-tracers').checked,
+                    health: document.getElementById('enable-health').checked
+                },
+                fov: {
+                    enabled: document.getElementById('enable-fov').checked,
+                    shape: document.getElementById('fov-shape').value,
+                    size: parseInt(document.getElementById('fov-size').value)
+                }
+            };
+        }
+
+        async function updateConfig() {
+            try {
+                const newConfig = collectConfigFromUI();
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newConfig)
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to update config');
+                }
+            } catch (error) {
+                console.error('Error updating config:', error);
+            }
+        }
+
+        async function toggleAimbot() {
+            try {
+                const response = await fetch('/api/toggle', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to toggle aimbot');
+                }
+                
+                setTimeout(loadStatus, 100); // Small delay then refresh status
+            } catch (error) {
+                console.error('Error toggling aimbot:', error);
+            }
+        }
+
+        async function saveConfig() {
+            try {
+                // First update config with current UI values
+                await updateConfig();
+                
+                // Then save to file
+                const response = await fetch('/api/save-config', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Configuration saved successfully!', 'success');
+                } else {
+                    throw new Error(result.error || 'Failed to save config');
+                }
+            } catch (error) {
+                console.error('Error saving config:', error);
+                showNotification('Error saving configuration', 'error');
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/load-config', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    config = result.config;
+                    updateUIFromConfig();
+                    showNotification('Configuration loaded successfully!', 'success');
+                } else {
+                    throw new Error(result.error || 'Failed to load config');
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+                showNotification('Error loading configuration', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-600' : 
+                type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById('enable-colorbot').addEventListener('change', toggleAimbot);
+        
+        // Add change listeners for all form elements to auto-save
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'range' || e.target.type === 'checkbox' || e.target.tagName === 'SELECT') {
+                updateConfig();
+            }
+        });
+
+        // Initialize
+        loadStatus();
+        setInterval(loadStatus, 2000); // Update status every 2 seconds
+    </script>
+</body>
+</html>
