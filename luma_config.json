@@ -1,0 +1,47 @@
+{
+  "target_color": [
+    255,
+    0,
+    0
+  ],
+  "tolerance": 10,
+  "sensitivity": 1.0,
+  "reaction_speed": 0.1,
+  "scan_area": [
+    0,
+    0,
+    1920,
+    1080
+  ],
+  "hotkey": "F8",
+  "auto_start": false,
+  "smoothness": 0.1,
+  "target_priority": "closest",
+  "recoil_control": {
+    "enabled": false,
+    "down": 0,
+    "up": 0,
+    "left": 0,
+    "right": 0
+  },
+  "prediction": {
+    "enabled": false,
+    "type": "linear"
+  },
+  "humanization": {
+    "enabled": false,
+    "type": "natural"
+  },
+  "esp": {
+    "enabled": false,
+    "box_style": "2d",
+    "color_scheme": "rainbow",
+    "tracers": false,
+    "health": false
+  },
+  "fov": {
+    "enabled": false,
+    "shape": "circle",
+    "size": 100
+  }
+}
